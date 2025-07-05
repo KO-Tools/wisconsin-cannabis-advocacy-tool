@@ -16,15 +16,89 @@ const WisconsinAdvocacyTool = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [expandedLetter, setExpandedLetter] = useState(null);
+  const [legislatorData, setLegislatorData] = useState({
+    legislators: [],
+    senators: []
+  });
 
-  // Sample legislator data - in production, this would be loaded from your CSV files
+  // Load CSV data on component mount
+  useEffect(() => {
+    const loadLegislatorData = async () => {
+      try {
+        // Load both CSV files
+        const [legislatorsResponse, senatorsResponse] = await Promise.all([
+          fetch('/wisconsin_legislators.csv'),
+          fetch('/wisconsin_senators.csv')
+        ]);
+
+        const [legislatorsText, senatorsText] = await Promise.all([
+          legislatorsResponse.text(),
+          senatorsResponse.text()
+        ]);
+
+        // Parse CSV data (simple parser for this format)
+        const parseCsv = (text) => {
+          const lines = text.split('\n').filter(line => line.trim() && !line.startsWith('#'));
+          if (lines.length === 0) return [];
+          
+          const headers = lines[0].split(',').map(h => h.trim());
+          return lines.slice(1).map(line => {
+            // Handle CSV with potential commas in quoted fields
+            const values = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+              const char = line[i];
+              if (char === '"') {
+                inQuotes = !inQuotes;
+              } else if (char === ',' && !inQuotes) {
+                values.push(current.trim());
+                current = '';
+              } else {
+                current += char;
+              }
+            }
+            values.push(current.trim()); // Add the last value
+            
+            const obj = {};
+            headers.forEach((header, index) => {
+              obj[header] = values[index] || '';
+              // Clean up email fields that might have mailto: links
+              if (header === 'Email' && obj[header].includes(':mailto:')) {
+                obj[header] = obj[header].split(':mailto:')[0];
+              }
+            });
+            return obj;
+          });
+        };
+
+        const legislators = parseCsv(legislatorsText);
+        const senators = parseCsv(senatorsText);
+
+        console.log(`Loaded ${legislators.length} legislators and ${senators.length} senators`);
+        setLegislatorData({ legislators, senators });
+      } catch (error) {
+        console.warn('Could not load CSV data, using sample data:', error);
+        // Fallback to sample data if CSV files aren't available
+        setLegislatorData({
+          legislators: [sampleLegislators[1]], // Assembly member
+          senators: [sampleLegislators[0]] // Senator
+        });
+      }
+    };
+
+    loadLegislatorData();
+  }, []);
+
+  // Sample legislator data as fallback
   const sampleLegislators = [
     {
       "First Name": "Tammy",
       "Last Name": "Baldwin",
       "Party": "Democratic",
       "Chamber": "Senate",
-      "District": 1,
+      "District": "1",
       "Photo": "https://via.placeholder.com/150x200/155756/ffffff?text=TB",
       "Email": "senator.baldwin@legis.wisconsin.gov",
       "Phone": "(608) 266-5490"
@@ -34,7 +108,7 @@ const WisconsinAdvocacyTool = () => {
       "Last Name": "Smith",
       "Party": "Republican",
       "Chamber": "Assembly",
-      "District": 1,
+      "District": "1",
       "Photo": "https://via.placeholder.com/150x200/88AEAD/ffffff?text=JS",
       "Email": "rep.smith@legis.wisconsin.gov",
       "Phone": "(608) 266-1234"
@@ -54,7 +128,6 @@ Wisconsin is losing significant economic opportunities to neighboring states whi
 **Tax Revenue & Business Protection:**
 • Wisconsin could generate $165.8 million annually in tax revenue from cannabis legalization (Legislative Fiscal Bureau, 2019)
 • Illinois collected $445.3 million in cannabis tax revenue in 2022 alone (Illinois Department of Revenue, 2023)
-• Responsible hemp businesses like Kind Oasis (www.kindoasis.com) and BATCH (www.hellobatch.com) face closure from proposed restrictive legislation, threatening thousands of Wisconsin jobs
 
 **Lost Revenue to Neighboring States:**
 • An estimated $435 million in cannabis sales from Wisconsin residents goes to Illinois dispensaries annually (Chicago Sun-Times analysis, 2023)
@@ -77,8 +150,7 @@ I am writing as your constituent to urge your support for cannabis legalization 
 • Black Wisconsinites are 4.3 times more likely to be arrested for cannabis than white residents, despite similar usage rates (ACLU Analysis, 2020)
 • Cannabis arrests account for 42% of all drug arrests in Wisconsin
 
-**Business Impact & Law Enforcement Support:**
-• Responsible businesses like Kind Oasis and BATCH must navigate complex regulations while facing potential criminalization
+**Law Enforcement and Crime:**
 • 67% of police officers believe cannabis laws should be relaxed (Pew Research Center, 2022)
 • States with legalization saw violent crime clearance rates increase by 7% as resources were redirected (Police Executive Research Forum, 2023)
 
@@ -97,7 +169,6 @@ As your constituent, I am writing to request your support for cannabis legalizat
 **Clinical Evidence & Patient Need:**
 • The National Academy of Sciences found conclusive evidence that cannabis effectively treats chronic pain, affecting 50 million Americans (National Academies, 2017)
 • Cannabis reduces opioid use by 64% on average in chronic pain patients (JAMA Internal Medicine, 2022)
-• An estimated 175,000 Wisconsin residents could qualify for medical cannabis (Wisconsin Policy Forum, 2023)
 
 **Wisconsin Business Infrastructure:**
 • Companies like Kind Oasis already manufacture and retail lab-tested hemp-derived products for wellness use
@@ -174,10 +245,17 @@ Sincerely,
       // Simulate API call - in production, this would call your geocoding service
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // For demo purposes, using sample data
+      // For demo purposes, select random legislators from real data
+      // In production, this would map the address to the correct district
+      const availableSenators = legislatorData.senators.length > 0 ? legislatorData.senators : [sampleLegislators[0]];
+      const availableLegislators = legislatorData.legislators.length > 0 ? legislatorData.legislators : [sampleLegislators[1]];
+      
+      const randomSenator = availableSenators[Math.floor(Math.random() * availableSenators.length)];
+      const randomLegislator = availableLegislators[Math.floor(Math.random() * availableLegislators.length)];
+      
       setRepresentatives({
-        senator: sampleLegislators.find(leg => leg.Chamber === 'Senate'),
-        representative: sampleLegislators.find(leg => leg.Chamber === 'Assembly')
+        senator: randomSenator,
+        representative: randomLegislator
       });
       
       setCurrentStep(2);
@@ -359,6 +437,9 @@ Sincerely,
                         src={representatives.senator.Photo}
                         alt={`${representatives.senator["First Name"]} ${representatives.senator["Last Name"]}`}
                         className="w-24 h-32 mx-auto rounded-lg object-cover mb-4"
+                        onError={(e) => {
+                          e.target.src = `https://via.placeholder.com/150x200/155756/ffffff?text=${representatives.senator["First Name"][0]}${representatives.senator["Last Name"][0]}`;
+                        }}
                       />
                       <h3 className="font-semibold text-lg text-[#155756]">
                         {representatives.senator["First Name"]} {representatives.senator["Last Name"]}
@@ -368,7 +449,7 @@ Sincerely,
                       <div className="space-y-2 text-sm">
                         <div className="flex items-center justify-center space-x-2">
                           <Mail className="w-4 h-4 text-[#155756]" />
-                          <span>{representatives.senator.Email}</span>
+                          <span className="break-all">{representatives.senator.Email}</span>
                         </div>
                         <div className="flex items-center justify-center space-x-2">
                           <Phone className="w-4 h-4 text-[#155756]" />
@@ -387,6 +468,9 @@ Sincerely,
                         src={representatives.representative.Photo}
                         alt={`${representatives.representative["First Name"]} ${representatives.representative["Last Name"]}`}
                         className="w-24 h-32 mx-auto rounded-lg object-cover mb-4"
+                        onError={(e) => {
+                          e.target.src = `https://via.placeholder.com/150x200/88AEAD/ffffff?text=${representatives.representative["First Name"][0]}${representatives.representative["Last Name"][0]}`;
+                        }}
                       />
                       <h3 className="font-semibold text-lg text-[#155756]">
                         {representatives.representative["First Name"]} {representatives.representative["Last Name"]}
@@ -396,7 +480,7 @@ Sincerely,
                       <div className="space-y-2 text-sm">
                         <div className="flex items-center justify-center space-x-2">
                           <Mail className="w-4 h-4 text-[#155756]" />
-                          <span>{representatives.representative.Email}</span>
+                          <span className="break-all">{representatives.representative.Email}</span>
                         </div>
                         <div className="flex items-center justify-center space-x-2">
                           <Phone className="w-4 h-4 text-[#155756]" />
