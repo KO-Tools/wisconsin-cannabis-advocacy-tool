@@ -1,5 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Mail, User, MapPin, Phone, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, Mail, User, MapPin, Phone, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
+import Papa from 'papaparse';
+
+// Constants
+const CONFIG = {
+  LOAD_TIMEOUT: 5000,
+  MAX_NAME_LENGTH: 50,
+  MAX_ADDRESS_LENGTH: 200,
+  CSV_PARSE_OPTIONS: {
+    header: true,
+    dynamicTyping: true,
+    skipEmptyLines: true,
+    transformHeader: (header) => header.trim()
+  }
+};
 
 const WisconsinAdvocacyTool = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -14,106 +28,127 @@ const WisconsinAdvocacyTool = () => {
   });
   const [selectedLetter, setSelectedLetter] = useState('');
   const [loading, setLoading] = useState(false);
+  const [dataLoading, setDataLoading] = useState(true);
   const [error, setError] = useState('');
   const [expandedLetter, setExpandedLetter] = useState(null);
   const [legislatorData, setLegislatorData] = useState({
     legislators: [],
-    senators: []
+    senators: [],
+    districts: []
   });
 
   // Load CSV data on component mount
   useEffect(() => {
     const loadLegislatorData = async () => {
+      setDataLoading(true);
       try {
-        // Load both CSV files
-        const [legislatorsResponse, senatorsResponse] = await Promise.all([
-          fetch('/wisconsin_legislators.csv'),
-          fetch('/wisconsin_senators.csv')
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), CONFIG.LOAD_TIMEOUT);
+
+        // Load all three CSV files
+        const [legislatorsResponse, senatorsResponse, districtsResponse] = await Promise.all([
+          fetch('/wisconsin_assembly.csv', { signal: controller.signal }),
+          fetch('/wisconsin_senators.csv', { signal: controller.signal }),
+          fetch('/wisconsin_districts.csv', { signal: controller.signal })
         ]);
 
-        const [legislatorsText, senatorsText] = await Promise.all([
+        clearTimeout(timeoutId);
+
+        if (!legislatorsResponse.ok || !senatorsResponse.ok || !districtsResponse.ok) {
+          throw new Error('Failed to load legislator data');
+        }
+
+        const [legislatorsText, senatorsText, districtsText] = await Promise.all([
           legislatorsResponse.text(),
-          senatorsResponse.text()
+          senatorsResponse.text(),
+          districtsResponse.text()
         ]);
 
-        // Parse CSV data (simple parser for this format)
-        const parseCsv = (text) => {
-          const lines = text.split('\n').filter(line => line.trim() && !line.startsWith('#'));
-          if (lines.length === 0) return [];
-          
-          const headers = lines[0].split(',').map(h => h.trim());
-          return lines.slice(1).map(line => {
-            // Handle CSV with potential commas in quoted fields
-            const values = [];
-            let current = '';
-            let inQuotes = false;
-            
-            for (let i = 0; i < line.length; i++) {
-              const char = line[i];
-              if (char === '"') {
-                inQuotes = !inQuotes;
-              } else if (char === ',' && !inQuotes) {
-                values.push(current.trim());
-                current = '';
-              } else {
-                current += char;
-              }
-            }
-            values.push(current.trim()); // Add the last value
-            
-            const obj = {};
-            headers.forEach((header, index) => {
-              obj[header] = values[index] || '';
-              // Clean up email fields that might have mailto: links
-              if (header === 'Email' && obj[header].includes(':mailto:')) {
-                obj[header] = obj[header].split(':mailto:')[0];
-              }
-            });
-            return obj;
+        // Use Papa Parse for robust CSV parsing
+        const legislatorsResult = Papa.parse(legislatorsText, CONFIG.CSV_PARSE_OPTIONS);
+        const senatorsResult = Papa.parse(senatorsText, CONFIG.CSV_PARSE_OPTIONS);
+        const districtsResult = Papa.parse(districtsText, CONFIG.CSV_PARSE_OPTIONS);
+
+        if (legislatorsResult.errors.length > 0 || senatorsResult.errors.length > 0 || districtsResult.errors.length > 0) {
+          console.error('CSV parsing errors:', {
+            legislators: legislatorsResult.errors,
+            senators: senatorsResult.errors,
+            districts: districtsResult.errors
           });
-        };
+        }
 
-        const legislators = parseCsv(legislatorsText);
-        const senators = parseCsv(senatorsText);
+        // Validate and clean data
+        const legislators = validateLegislatorData(legislatorsResult.data);
+        const senators = validateLegislatorData(senatorsResult.data);
+        const districts = validateDistrictData(districtsResult.data);
 
-        console.log(`Loaded ${legislators.length} legislators and ${senators.length} senators`);
-        setLegislatorData({ legislators, senators });
+        console.log(`Loaded ${legislators.length} legislators, ${senators.length} senators, and ${districts.length} district mappings`);
+        
+        setLegislatorData({ legislators, senators, districts });
+        setDataLoading(false);
       } catch (error) {
-        console.warn('Could not load CSV data, using sample data:', error);
-        // Fallback to sample data if CSV files aren't available
-        setLegislatorData({
-          legislators: [sampleLegislators[1]], // Assembly member
-          senators: [sampleLegislators[0]] // Senator
-        });
+        const errorMessage = error.name === 'AbortError' 
+          ? 'Loading legislator data took too long. Please refresh and try again.'
+          : 'Unable to load legislator data. Please check your connection and refresh.';
+        
+        setError(errorMessage);
+        setDataLoading(false);
+        console.error('Failed to load data:', error);
       }
     };
 
     loadLegislatorData();
   }, []);
 
-  // Sample legislator data as fallback
-  const sampleLegislators = [
-    {
-      "First Name": "Tammy",
-      "Last Name": "Baldwin",
-      "Party": "Democratic",
-      "Chamber": "Senate",
-      "District": "1",
-      "Photo": "https://via.placeholder.com/150x200/155756/ffffff?text=TB",
-      "Email": "senator.baldwin@legis.wisconsin.gov",
-      "Phone": "(608) 266-5490"
-    },
-    {
-      "First Name": "John",
-      "Last Name": "Smith",
-      "Party": "Republican",
-      "Chamber": "Assembly",
-      "District": "1",
-      "Photo": "https://via.placeholder.com/150x200/88AEAD/ffffff?text=JS",
-      "Email": "rep.smith@legis.wisconsin.gov",
-      "Phone": "(608) 266-1234"
+  // Data validation functions
+  const validateLegislatorData = (data) => {
+    return data
+      .filter(row => row['First Name'] && row['Last Name'] && row['Email'])
+      .map(row => ({
+        ...row,
+        Email: validateEmail(row.Email) ? row.Email : '',
+        Phone: formatPhoneNumber(row.Phone || ''),
+        Photo: row.Photo || generatePlaceholderPhoto(row),
+        Party: row.Party === 'R' ? 'Republican' : row.Party === 'D' ? 'Democrat' : row.Party
+      }));
+  };
+
+  const validateDistrictData = (data) => {
+    return data
+      .filter(row => row.Zip_Code && row.Senate_District && row.Assembly_District)
+      .map(row => ({
+        ...row,
+        Zip_Code: String(row.Zip_Code).padStart(5, '0') // Ensure 5-digit zip codes
+      }));
+  };
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const formatPhoneNumber = (phone) => {
+    // Remove all non-digits
+    const cleaned = phone.replace(/\D/g, '');
+    // Format as (XXX) XXX-XXXX
+    if (cleaned.length === 10) {
+      return `(${cleaned.slice(0,3)}) ${cleaned.slice(3,6)}-${cleaned.slice(6)}`;
     }
-  ];
+    return phone; // Return original if can't format
+  };
+
+  const generatePlaceholderPhoto = (legislator) => {
+    const initials = `${legislator['First Name'][0]}${legislator['Last Name'][0]}`;
+    const color = legislator.Party === 'R' || legislator.Party === 'Republican' ? '155756' : '88AEAD';
+    return `https://via.placeholder.com/150x200/${color}/ffffff?text=${initials}`;
+  };
+
+  // Extract zip code from address
+  const extractZipCode = (address) => {
+    const zipRegex = /\b(\d{5})(?:-\d{4})?\b/;
+    const match = address.match(zipRegex);
+    return match ? match[1] : null;
+  };
 
   const advocacyLetters = {
     economic: {
@@ -220,12 +255,12 @@ Sincerely,
       setError('Please fill in all required fields.');
       return false;
     }
-    if (formData.firstName.length > 50 || formData.lastName.length > 50) {
-      setError('Names must be 50 characters or less.');
+    if (formData.firstName.length > CONFIG.MAX_NAME_LENGTH || formData.lastName.length > CONFIG.MAX_NAME_LENGTH) {
+      setError(`Names must be ${CONFIG.MAX_NAME_LENGTH} characters or less.`);
       return false;
     }
-    if (formData.address.length > 200) {
-      setError('Address must be 200 characters or less.');
+    if (formData.address.length > CONFIG.MAX_ADDRESS_LENGTH) {
+      setError(`Address must be ${CONFIG.MAX_ADDRESS_LENGTH} characters or less.`);
       return false;
     }
     if (!formData.address.toLowerCase().includes('wisconsin') && !formData.address.toLowerCase().includes('wi')) {
@@ -242,25 +277,52 @@ Sincerely,
     setError('');
 
     try {
-      // Simulate API call - in production, this would call your geocoding service
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Extract zip code from address
+      const zipCode = extractZipCode(formData.address);
       
-      // For demo purposes, select random legislators from real data
-      // In production, this would map the address to the correct district
-      const availableSenators = legislatorData.senators.length > 0 ? legislatorData.senators : [sampleLegislators[0]];
-      const availableLegislators = legislatorData.legislators.length > 0 ? legislatorData.legislators : [sampleLegislators[1]];
-      
-      const randomSenator = availableSenators[Math.floor(Math.random() * availableSenators.length)];
-      const randomLegislator = availableLegislators[Math.floor(Math.random() * availableLegislators.length)];
-      
+      if (!zipCode) {
+        setError('Please include a valid 5-digit ZIP code in your address.');
+        setLoading(false);
+        return;
+      }
+
+      // Find district mapping for this zip code
+      const districtMapping = legislatorData.districts.find(
+        d => d.Zip_Code === zipCode
+      );
+
+      if (!districtMapping) {
+        setError(`Unable to find legislative districts for ZIP code ${zipCode}. Please verify your address and try again.`);
+        setLoading(false);
+        return;
+      }
+
+      // Find the senator and representative based on the district mapping
+      const senator = legislatorData.senators.find(s => 
+        s['First Name'] === districtMapping.Senator_First_Name && 
+        s['Last Name'] === districtMapping.Senator_Last_Name
+      );
+
+      const representative = legislatorData.legislators.find(l => 
+        l['First Name'] === districtMapping.Representative_First_Name && 
+        l['Last Name'] === districtMapping.Representative_Last_Name
+      );
+
+      if (!senator || !representative) {
+        setError('Unable to match your representatives. Please try again or contact support.');
+        setLoading(false);
+        return;
+      }
+
       setRepresentatives({
-        senator: randomSenator,
-        representative: randomLegislator
+        senator: senator,
+        representative: representative
       });
       
       setCurrentStep(2);
     } catch (err) {
       setError('Unable to find your representatives. Please check your address and try again.');
+      console.error('Error finding representatives:', err);
     } finally {
       setLoading(false);
     }
@@ -283,7 +345,15 @@ Sincerely,
       .replace(/\[Representative\/Senator Name\]/g, `${representatives.representative["First Name"]} ${representatives.representative["Last Name"]} and ${representatives.senator["First Name"]} ${representatives.senator["Last Name"]}`);
 
     // Create mailto link
-    const emails = [representatives.senator.Email, representatives.representative.Email].join(',');
+    const emails = [representatives.senator.Email, representatives.representative.Email]
+      .filter(email => email && validateEmail(email))
+      .join(',');
+    
+    if (!emails) {
+      setError('Unable to generate email - representative contact information is missing.');
+      return;
+    }
+
     const subject = encodeURIComponent(letter.subject);
     const body = encodeURIComponent(personalizedContent);
     
@@ -298,6 +368,39 @@ Sincerely,
     setSelectedLetter('');
     setError('');
   };
+
+  // Show loading screen while data is being loaded
+  if (dataLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#155756] mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading Wisconsin legislator data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error screen if data failed to load
+  if (!dataLoading && legislatorData.districts.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-8">
+          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Unable to Load Data</h2>
+          <p className="text-gray-600 mb-4">
+            We couldn't load the Wisconsin legislator data. Please refresh the page to try again.
+          </p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-6 py-2 bg-[#155756] text-white rounded-lg hover:bg-[#0f4544]"
+          >
+            Refresh Page
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -318,21 +421,25 @@ Sincerely,
 
       <main className="max-w-4xl mx-auto px-4 py-8">
         {/* Progress Indicator */}
-        <div className="mb-8">
+        <div className="mb-8" role="navigation" aria-label="Progress">
           <div className="flex items-center justify-center space-x-4">
             {[1, 2, 3].map((step) => (
               <div key={step} className="flex items-center">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                  currentStep >= step 
-                    ? 'bg-[#155756] text-white' 
-                    : 'bg-gray-300 text-gray-600'
-                }`}>
+                <div 
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                    currentStep >= step 
+                      ? 'bg-[#155756] text-white' 
+                      : 'bg-gray-300 text-gray-600'
+                  }`}
+                  aria-current={currentStep === step ? 'step' : undefined}
+                  aria-label={`Step ${step}`}
+                >
                   {step}
                 </div>
                 {step < 3 && (
                   <div className={`w-16 h-1 mx-2 ${
                     currentStep > step ? 'bg-[#155756]' : 'bg-gray-300'
-                  }`} />
+                  }`} aria-hidden="true" />
                 )}
               </div>
             ))}
@@ -345,7 +452,7 @@ Sincerely,
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg" role="alert">
             <p className="text-red-700">{error}</p>
           </div>
         )}
@@ -366,9 +473,10 @@ Sincerely,
                     name="firstName"
                     value={formData.firstName}
                     onChange={handleInputChange}
-                    maxLength={50}
+                    maxLength={CONFIG.MAX_NAME_LENGTH}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155756] focus:border-transparent"
                     placeholder="Enter your first name"
+                    aria-required="true"
                   />
                 </div>
                 <div>
@@ -381,15 +489,16 @@ Sincerely,
                     name="lastName"
                     value={formData.lastName}
                     onChange={handleInputChange}
-                    maxLength={50}
+                    maxLength={CONFIG.MAX_NAME_LENGTH}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155756] focus:border-transparent"
                     placeholder="Enter your last name"
+                    aria-required="true"
                   />
                 </div>
               </div>
               <div>
                 <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
-                  Full Wisconsin Address *
+                  Full Wisconsin Address (including ZIP code) *
                 </label>
                 <input
                   type="text"
@@ -397,25 +506,31 @@ Sincerely,
                   name="address"
                   value={formData.address}
                   onChange={handleInputChange}
-                  maxLength={200}
+                  maxLength={CONFIG.MAX_ADDRESS_LENGTH}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155756] focus:border-transparent"
                   placeholder="123 Main St, Madison, WI 53703"
+                  aria-required="true"
+                  aria-describedby="address-help"
                 />
+                <p id="address-help" className="mt-1 text-sm text-gray-500">
+                  Please include your 5-digit ZIP code
+                </p>
               </div>
             </div>
             <button
               onClick={findRepresentatives}
               disabled={loading}
               className="mt-6 w-full md:w-auto px-8 py-3 bg-[#155756] text-white font-medium rounded-lg hover:bg-[#0f4544] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+              aria-busy={loading}
             >
               {loading ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" aria-hidden="true"></div>
                   <span>Finding Representatives...</span>
                 </>
               ) : (
                 <>
-                  <Search className="w-4 h-4" />
+                  <Search className="w-4 h-4" aria-hidden="true" />
                   <span>Find My Representatives</span>
                 </>
               )}
@@ -438,7 +553,7 @@ Sincerely,
                         alt={`${representatives.senator["First Name"]} ${representatives.senator["Last Name"]}`}
                         className="w-24 h-32 mx-auto rounded-lg object-cover mb-4"
                         onError={(e) => {
-                          e.target.src = `https://via.placeholder.com/150x200/155756/ffffff?text=${representatives.senator["First Name"][0]}${representatives.senator["Last Name"][0]}`;
+                          e.target.src = generatePlaceholderPhoto(representatives.senator);
                         }}
                       />
                       <h3 className="font-semibold text-lg text-[#155756]">
@@ -448,13 +563,15 @@ Sincerely,
                       <p className="text-sm text-gray-500 mb-4">{representatives.senator.Party}</p>
                       <div className="space-y-2 text-sm">
                         <div className="flex items-center justify-center space-x-2">
-                          <Mail className="w-4 h-4 text-[#155756]" />
+                          <Mail className="w-4 h-4 text-[#155756]" aria-hidden="true" />
                           <span className="break-all">{representatives.senator.Email}</span>
                         </div>
-                        <div className="flex items-center justify-center space-x-2">
-                          <Phone className="w-4 h-4 text-[#155756]" />
-                          <span>{representatives.senator.Phone}</span>
-                        </div>
+                        {representatives.senator.Phone && (
+                          <div className="flex items-center justify-center space-x-2">
+                            <Phone className="w-4 h-4 text-[#155756]" aria-hidden="true" />
+                            <span>{representatives.senator.Phone}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -469,7 +586,7 @@ Sincerely,
                         alt={`${representatives.representative["First Name"]} ${representatives.representative["Last Name"]}`}
                         className="w-24 h-32 mx-auto rounded-lg object-cover mb-4"
                         onError={(e) => {
-                          e.target.src = `https://via.placeholder.com/150x200/88AEAD/ffffff?text=${representatives.representative["First Name"][0]}${representatives.representative["Last Name"][0]}`;
+                          e.target.src = generatePlaceholderPhoto(representatives.representative);
                         }}
                       />
                       <h3 className="font-semibold text-lg text-[#155756]">
@@ -479,13 +596,15 @@ Sincerely,
                       <p className="text-sm text-gray-500 mb-4">{representatives.representative.Party}</p>
                       <div className="space-y-2 text-sm">
                         <div className="flex items-center justify-center space-x-2">
-                          <Mail className="w-4 h-4 text-[#155756]" />
+                          <Mail className="w-4 h-4 text-[#155756]" aria-hidden="true" />
                           <span className="break-all">{representatives.representative.Email}</span>
                         </div>
-                        <div className="flex items-center justify-center space-x-2">
-                          <Phone className="w-4 h-4 text-[#155756]" />
-                          <span>{representatives.representative.Phone}</span>
-                        </div>
+                        {representatives.representative.Phone && (
+                          <div className="flex items-center justify-center space-x-2">
+                            <Phone className="w-4 h-4 text-[#155756]" aria-hidden="true" />
+                            <span>{representatives.representative.Phone}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -504,13 +623,19 @@ Sincerely,
                       <button
                         onClick={() => setExpandedLetter(expandedLetter === key ? null : key)}
                         className="text-[#155756] hover:text-[#0f4544]"
+                        aria-expanded={expandedLetter === key}
+                        aria-controls={`letter-preview-${key}`}
+                        aria-label={`${expandedLetter === key ? 'Hide' : 'Show'} preview of ${letter.title}`}
                       >
-                        {expandedLetter === key ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                        {expandedLetter === key ? <ChevronUp className="w-4 h-4" aria-hidden="true" /> : <ChevronDown className="w-4 h-4" aria-hidden="true" />}
                       </button>
                     </div>
                     
                     {expandedLetter === key && (
-                      <div className="mb-4 p-3 bg-gray-50 rounded text-sm text-gray-700 max-h-40 overflow-y-auto">
+                      <div 
+                        id={`letter-preview-${key}`}
+                        className="mb-4 p-3 bg-gray-50 rounded text-sm text-gray-700 max-h-40 overflow-y-auto"
+                      >
                         <pre className="whitespace-pre-wrap font-sans">{letter.content.slice(0, 300)}...</pre>
                       </div>
                     )}
@@ -556,14 +681,14 @@ Sincerely,
                 onClick={generateEmail}
                 className="flex-1 px-6 py-3 bg-[#155756] text-white font-medium rounded-lg hover:bg-[#0f4544] flex items-center justify-center space-x-2"
               >
-                <Mail className="w-4 h-4" />
+                <Mail className="w-4 h-4" aria-hidden="true" />
                 <span>Email My Representatives</span>
               </button>
               <button
                 onClick={resetForm}
                 className="flex-1 px-6 py-3 border border-[#155756] text-[#155756] font-medium rounded-lg hover:bg-[#155756] hover:text-white flex items-center justify-center space-x-2"
               >
-                <User className="w-4 h-4" />
+                <User className="w-4 h-4" aria-hidden="true" />
                 <span>Send Another Letter</span>
               </button>
             </div>
