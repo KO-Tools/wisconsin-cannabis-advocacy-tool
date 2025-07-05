@@ -1,0 +1,5 @@
+First Name,Last Name,Party,Chamber,District,Photo,Email,Phone
+Sample,Representative,Republican,Assembly,1,https://via.placeholder.com/150x200/155756/ffffff?text=SR,sample.rep@legis.wisconsin.gov,(608) 266-0000
+# NOTE: Replace this file with your complete wisconsin_legislators.csv data
+# This file should contain all 99 Wisconsin Assembly representatives
+# Format: First Name,Last Name,Party,Chamber,District,Photo,Email,Phone
