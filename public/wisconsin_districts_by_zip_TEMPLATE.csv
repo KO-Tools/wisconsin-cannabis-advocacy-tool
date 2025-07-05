@@ -1,0 +1,31 @@
+Zip_Code,Senate_District,Assembly_District,City,County
+53001,20,60,Allenton,Washington
+53002,20,60,Ashippun,Dodge
+53003,33,99,Brownsville,Dodge
+53004,20,60,Campbellsport,Fond du Lac
+53005,33,39,Cedar Grove,Sheboygan
+# 
+# TEMPLATE: Wisconsin Zip Code to Legislative District Mapping
+# 
+# Instructions:
+# 1. Replace the sample rows above with complete Wisconsin data
+# 2. Each row should map a zip code to its legislative districts
+# 3. Required columns:
+#    - Zip_Code: 5-digit Wisconsin zip code
+#    - Senate_District: Wisconsin State Senate district number (1-33)
+#    - Assembly_District: Wisconsin Assembly district number (1-99)
+#    - City: Primary city for this zip code (optional but helpful)
+#    - County: County name (optional but helpful)
+#
+# Notes:
+# - Some zip codes may span multiple districts (use primary/majority district)
+# - Ensure all Wisconsin zip codes are covered
+# - Senate districts: 1-33, Assembly districts: 1-99
+# - This file will be used to match user addresses to their correct legislators
+#
+# Data sources you can use:
+# - Wisconsin Elections Commission
+# - Wisconsin Legislature website
+# - US Census Bureau
+# - Wisconsin Secretary of State office
+#
