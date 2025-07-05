@@ -1,5 +1,34 @@
 First Name,Last Name,Party,Chamber,District,Photo,Email,Phone
-Sample,Senator,Democratic,Senate,1,https://via.placeholder.com/150x200/88AEAD/ffffff?text=SS,sample.senator@legis.wisconsin.gov,(608) 266-0001
-# NOTE: Replace this file with your complete wisconsin_senators.csv data
-# This file should contain all 33 Wisconsin State Senators  
-# Format: First Name,Last Name,Party,Chamber,District,Photo,Email,Phone
+Andre,Jacque,R,Senate,1,https://docs.legis.wisconsin.gov/2025/legislators/senate/2812.jpg,Sen.Jacque@legis.wisconsin.gov,(608) 266-3512
+Robert,Cowles,R,Senate,2,https://docs.legis.wisconsin.gov/2025/legislators/senate/2808.jpg,Sen.Cowles@legis.wisconsin.gov,(608) 266-0484
+Tim,Carpenter,D,Senate,3,https://docs.legis.wisconsin.gov/2025/legislators/senate/2816.jpg,Sen.Carpenter@legis.wisconsin.gov,(608) 266-8535
+Dora,Drake,D,Senate,4,https://docs.legis.wisconsin.gov/2025/legislators/senate/2836.jpg,Sen.Drake@legis.wisconsin.gov,(608) 266-7513
+Rob,Hutton,R,Senate,5,https://docs.legis.wisconsin.gov/2025/legislators/senate/2839.jpg,Sen.Hutton@legis.wisconsin.gov,(608) 266-2512
+LaTonya,Johnson,D,Senate,6,https://docs.legis.wisconsin.gov/2025/legislators/senate/2815.jpg,Sen.L.Johnson@legis.wisconsin.gov,(608) 266-2500
+Chris,Larson,D,Senate,7,https://docs.legis.wisconsin.gov/2025/legislators/senate/2834.jpg,Sen.Larson@legis.wisconsin.gov,(608) 266-7505
+Chris,Kapenga,R,Senate,33,https://docs.legis.wisconsin.gov/2025/legislators/senate/2818.jpg,Sen.Kapenga@legis.wisconsin.gov,(608) 266-9174
+Alberta,Darling,R,Senate,8,https://docs.legis.wisconsin.gov/2025/legislators/senate/2807.jpg,Sen.Darling@legis.wisconsin.gov,(608) 266-5830
+Joan,Ballweg,R,Senate,14,https://docs.legis.wisconsin.gov/2025/legislators/senate/2804.jpg,Sen.Ballweg@legis.wisconsin.gov,(608) 266-0751
+John,Jagler,R,Senate,13,https://docs.legis.wisconsin.gov/2025/legislators/senate/2813.jpg,Sen.Jagler@legis.wisconsin.gov,(608) 266-5660
+Devin,LeMahieu,R,Senate,9,https://docs.legis.wisconsin.gov/2025/legislators/senate/2820.jpg,Sen.LeMahieu@legis.wisconsin.gov,(608) 266-2056
+Jeff,Smith,D,Senate,31,https://docs.legis.wisconsin.gov/2025/legislators/senate/2826.jpg,Sen.Smith@legis.wisconsin.gov,(608) 266-8546
+Mark,Spreitzer,D,Senate,15,https://docs.legis.wisconsin.gov/2025/legislators/senate/2827.jpg,Sen.Spreitzer@legis.wisconsin.gov,(608) 266-2253
+Patrick,Testin,R,Senate,24,https://docs.legis.wisconsin.gov/2025/legislators/senate/2830.jpg,Sen.Testin@legis.wisconsin.gov,(608) 266-3123
+Melissa,Agard,D,Senate,16,https://docs.legis.wisconsin.gov/2025/legislators/senate/2803.jpg,Sen.Agard@legis.wisconsin.gov,(608) 266-9170
+Kelda,Roys,D,Senate,26,https://docs.legis.wisconsin.gov/2025/legislators/senate/2825.jpg,Sen.Roys@legis.wisconsin.gov,(608) 266-1627
+Dan,Feyen,R,Senate,18,https://docs.legis.wisconsin.gov/2025/legislators/senate/2838.jpg,Sen.Feyen@legis.wisconsin.gov,(608) 266-5300
+Cory,Tomczyk,R,Senate,29,https://docs.legis.wisconsin.gov/2025/legislators/senate/2831.jpg,Sen.Tomczyk@legis.wisconsin.gov,(608) 266-8909
+Janet,Bewley,D,Senate,25,https://docs.legis.wisconsin.gov/2025/legislators/senate/2810.jpg,Sen.Bewley@legis.wisconsin.gov,(608) 266-3510
+Brad,Pfaff,D,Senate,32,https://docs.legis.wisconsin.gov/2025/legislators/senate/2824.jpg,Sen.Pfaff@legis.wisconsin.gov,(608) 266-5490
+Howard,Marklein,R,Senate,17,https://docs.legis.wisconsin.gov/2025/legislators/senate/2821.jpg,Sen.Marklein@legis.wisconsin.gov,(608) 266-0703
+Julian,Bradley,R,Senate,28,https://docs.legis.wisconsin.gov/2025/legislators/senate/2835.jpg,Sen.Bradley@legis.wisconsin.gov,(608) 266-5400
+Eric,Wimberger,R,Senate,30,https://docs.legis.wisconsin.gov/2025/legislators/senate/2833.jpg,Sen.Wimberger@legis.wisconsin.gov,(608) 266-8890
+Duey,Stroebel,R,Senate,20,https://docs.legis.wisconsin.gov/2025/legislators/senate/2828.jpg,Sen.Stroebel@legis.wisconsin.gov,(608) 266-7513
+Patty,Schachtner,D,Senate,10,https://docs.legis.wisconsin.gov/2025/legislators/senate/2840.jpg,Sen.Schachtner@legis.wisconsin.gov,(608) 266-7745
+Stephen,Nass,R,Senate,11,https://docs.legis.wisconsin.gov/2025/legislators/senate/2822.jpg,Sen.Nass@legis.wisconsin.gov,(608) 266-2635
+Robert,Roth,D,Senate,22,https://docs.legis.wisconsin.gov/2025/legislators/senate/2823.jpg,Sen.Roth@legis.wisconsin.gov,(608) 266-0718
+Mary,Felzkowski,R,Senate,12,https://docs.legis.wisconsin.gov/2025/legislators/senate/2809.jpg,Sen.Felzkowski@legis.wisconsin.gov,(608) 266-2509
+Rachael,Cabral-Guevara,R,Senate,19,https://docs.legis.wisconsin.gov/2025/legislators/senate/2806.jpg,Sen.Cabral-Guevara@legis.wisconsin.gov,(608) 266-0718
+Van,Wanggaard,R,Senate,21,https://docs.legis.wisconsin.gov/2025/legislators/senate/2832.jpg,Sen.Wanggaard@legis.wisconsin.gov,(608) 266-1832
+Jesse,James,R,Senate,23,https://docs.legis.wisconsin.gov/2025/legislators/senate/2814.jpg,Sen.James@legis.wisconsin.gov,(608) 266-7511
+Dianne,Hesselbein,D,Senate,27,https://docs.legis.wisconsin.gov/2025/legislators/senate/2811.jpg,Sen.Hesselbein@legis.wisconsin.gov,(608) 266-2342
