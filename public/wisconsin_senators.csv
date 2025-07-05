@@ -1,0 +1,5 @@
+First Name,Last Name,Party,Chamber,District,Photo,Email,Phone
+Sample,Senator,Democratic,Senate,1,https://via.placeholder.com/150x200/88AEAD/ffffff?text=SS,sample.senator@legis.wisconsin.gov,(608) 266-0001
+# NOTE: Replace this file with your complete wisconsin_senators.csv data
+# This file should contain all 33 Wisconsin State Senators  
+# Format: First Name,Last Name,Party,Chamber,District,Photo,Email,Phone
