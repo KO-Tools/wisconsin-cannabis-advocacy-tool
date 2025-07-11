@@ -21,6 +21,7 @@ This tool transforms the complex process of contacting state representatives int
 - **Responsive design** that works on desktop and mobile devices
 - **Clean, accessible interface** following WCAG guidelines
 - **Kind Oasis branding** with custom color scheme
+- **Enhanced modern UI** with gradients, glassmorphism effects, and professional styling
 
 ## 🚀 Quick Start
 
@@ -83,7 +84,10 @@ This creates a `build/` folder with optimized production files.
 ```
 wisconsin-cannabis-advocacy-tool/
 ├── public/
-│   └── index.html          # HTML template
+│   ├── index.html          # HTML template
+│   ├── wisconsin_assembly.csv    # Assembly representatives data
+│   ├── wisconsin_senators.csv    # State senators data
+│   └── wisconsin_districts.csv   # ZIP code to district mapping
 ├── src/
 │   ├── App.js              # Main app component
 │   ├── App.css             # App-specific styles
@@ -111,22 +115,10 @@ wisconsin-cannabis-advocacy-tool/
 
 ### Adding Real Legislator Data
 
-1. **Place your CSV files** in the `public/` folder:
-   - `wisconsin_legislators.csv`
-   - `wisconsin_senators.csv`
-
-2. **Update the data loading** in `WisconsinAdvocacyTool.js`:
-```javascript
-// Replace the sample data loading with:
-useEffect(() => {
-  fetch('/wisconsin_legislators.csv')
-    .then(response => response.text())
-    .then(csvText => {
-      // Parse CSV data using Papa Parse
-      // Update legislators state
-    });
-}, []);
-```
+The tool now includes complete Wisconsin legislator data:
+- Full assembly and senate rosters with contact information
+- ZIP code to legislative district mapping
+- Representative photos and party affiliations
 
 ### Adding Address-to-District Mapping
 
@@ -207,3 +199,5 @@ For business questions about Kind Oasis advocacy efforts:
 **Built with ❤️ for Wisconsin cannabis advocacy**
 
 *This tool helps Wisconsin residents make their voices heard on cannabis legalization while supporting responsible businesses like Kind Oasis.*
+
+**Latest Update**: Enhanced UI with modern design elements, complete Wisconsin legislator database, and improved user experience.
