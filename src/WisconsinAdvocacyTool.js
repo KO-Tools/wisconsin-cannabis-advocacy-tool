@@ -37,6 +37,11 @@ const WisconsinAdvocacyTool = () => {
     districts: []
   });
 
+  // Add error logging function
+  const logError = (error, context) => {
+    console.error(`Production Error in ${context}:`, error);
+  };
+
   // Load CSV data on component mount
   useEffect(() => {
     const loadLegislatorData = async () => {
@@ -70,11 +75,11 @@ const WisconsinAdvocacyTool = () => {
         const districtsResult = Papa.parse(districtsText, CONFIG.CSV_PARSE_OPTIONS);
 
         if (legislatorsResult.errors.length > 0 || senatorsResult.errors.length > 0 || districtsResult.errors.length > 0) {
-          console.error('CSV parsing errors:', {
+          logError({
             legislators: legislatorsResult.errors,
             senators: senatorsResult.errors,
             districts: districtsResult.errors
-          });
+          }, 'CSV parsing');
         }
 
         // Validate and clean data
@@ -93,7 +98,7 @@ const WisconsinAdvocacyTool = () => {
         
         setError(errorMessage);
         setDataLoading(false);
-        console.error('Failed to load data:', error);
+        logError(error, 'loadLegislatorData');
       }
     };
 
@@ -250,6 +255,7 @@ Sincerely,
     setError('');
   };
 
+  // Updated validateForm function with enhanced ZIP code validation
   const validateForm = () => {
     if (!formData.firstName.trim() || !formData.lastName.trim() || !formData.address.trim()) {
       setError('Please fill in all required fields.');
@@ -267,6 +273,14 @@ Sincerely,
       setError('Please enter a Wisconsin address.');
       return false;
     }
+    
+    // Enhanced ZIP code validation
+    const zipCode = extractZipCode(formData.address);
+    if (!zipCode) {
+      setError('Please include a valid 5-digit ZIP code in your Wisconsin address (e.g., 53703).');
+      return false;
+    }
+    
     return true;
   };
 
@@ -322,7 +336,7 @@ Sincerely,
       setCurrentStep(2);
     } catch (err) {
       setError('Unable to find your representatives. Please check your address and try again.');
-      console.error('Error finding representatives:', err);
+      logError(err, 'findRepresentatives');
     } finally {
       setLoading(false);
     }
@@ -609,6 +623,16 @@ Sincerely,
                     </div>
                   </div>
                 )}
+              </div>
+              
+              {/* User Disclaimer - Added as required */}
+              <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-sm text-yellow-800">
+                  <strong>Note:</strong> This tool uses ZIP code-based lookup. In rare cases, please verify your representatives at{' '}
+                  <a href="https://legis.wisconsin.gov/Pages/leg-list.aspx" className="underline" target="_blank" rel="noopener noreferrer">
+                    legis.wisconsin.gov
+                  </a>
+                </p>
               </div>
             </div>
 
