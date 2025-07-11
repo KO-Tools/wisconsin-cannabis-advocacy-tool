@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Mail, User, MapPin, Phone, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
+import { Search, Mail, User, MapPin, Phone, ChevronDown, ChevronUp, AlertCircle, Leaf } from 'lucide-react';
 import Papa from 'papaparse';
 
 // Constants
@@ -144,7 +144,7 @@ const WisconsinAdvocacyTool = () => {
 
   const generatePlaceholderPhoto = (legislator) => {
     const initials = `${legislator['First Name'][0]}${legislator['Last Name'][0]}`;
-    const color = legislator.Party === 'R' || legislator.Party === 'Republican' ? '155756' : '88AEAD';
+    const color = legislator.Party === 'R' || legislator.Party === 'Republican' ? '4A90E2' : '7ED321';
     return `https://via.placeholder.com/150x200/${color}/ffffff?text=${initials}`;
   };
 
@@ -159,6 +159,8 @@ const WisconsinAdvocacyTool = () => {
     economic: {
       title: "Economic Benefits Focus",
       subject: "Support Cannabis Legalization for Wisconsin's Economic Growth and Business Protection",
+      gradient: "from-emerald-500 to-teal-600",
+      icon: "💰",
       content: `Dear [Representative/Senator Name],
 
 As your constituent and someone who supports Wisconsin's growing hemp and cannabis industry, I am writing to urge your support for comprehensive cannabis legalization. This policy change would provide transformative economic advantages while protecting responsible Wisconsin businesses from harmful restrictive legislation.
@@ -181,6 +183,8 @@ Sincerely,
     criminal: {
       title: "Criminal Justice Reform Focus",
       subject: "Support Cannabis Legalization as Essential Criminal Justice Reform",
+      gradient: "from-blue-500 to-indigo-600",
+      icon: "⚖️",
       content: `Dear [Representative/Senator Name],
 
 I am writing as your constituent to urge your support for cannabis legalization in Wisconsin as a critical criminal justice reform measure. Current enforcement disproportionately impacts communities while responsible hemp businesses operate under constant legal uncertainty.
@@ -202,6 +206,8 @@ Sincerely,
     medical: {
       title: "Medical Benefits Focus",
       subject: "Support Medical Cannabis Access for Wisconsin Patients",
+      gradient: "from-green-500 to-emerald-600",
+      icon: "🏥",
       content: `Dear [Representative/Senator Name],
 
 As your constituent, I am writing to request your support for cannabis legalization in Wisconsin to ensure medical access for patients who desperately need this proven treatment option. Wisconsin businesses are already providing hemp-based wellness products, demonstrating the demand for cannabis medicine.
@@ -223,6 +229,8 @@ Sincerely,
     freedom: {
       title: "Personal Freedom and Public Safety Focus",
       subject: "Support Cannabis Legalization to Enhance Freedom and Protect Responsible Businesses",
+      gradient: "from-purple-500 to-pink-600",
+      icon: "🗽",
       content: `Dear [Representative/Senator Name],
 
 I am writing as your constituent to urge your support for cannabis legalization in Wisconsin based on principles of personal freedom, public safety, and protection of responsible businesses from special interest legislation.
@@ -386,10 +394,11 @@ Sincerely,
   // Show loading screen while data is being loaded
   if (dataLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#155756] mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading Wisconsin legislator data...</p>
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 flex items-center justify-center">
+        <div className="text-center bg-white/80 backdrop-blur-sm rounded-3xl p-12 shadow-xl">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-emerald-500 border-t-transparent mx-auto mb-6"></div>
+          <p className="text-gray-700 text-lg font-medium">Loading Wisconsin legislator data...</p>
+          <p className="text-gray-500 text-sm mt-2">Preparing your advocacy tool</p>
         </div>
       </div>
     );
@@ -398,16 +407,16 @@ Sincerely,
   // Show error screen if data failed to load
   if (!dataLoading && legislatorData.districts.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto p-8">
-          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">Unable to Load Data</h2>
-          <p className="text-gray-600 mb-4">
+      <div className="min-h-screen bg-gradient-to-br from-red-50 via-pink-50 to-orange-50 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-8 bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl">
+          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-6" />
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Unable to Load Data</h2>
+          <p className="text-gray-600 mb-6">
             We couldn't load the Wisconsin legislator data. Please refresh the page to try again.
           </p>
           <button 
             onClick={() => window.location.reload()} 
-            className="px-6 py-2 bg-[#155756] text-white rounded-lg hover:bg-[#0f4544]"
+            className="px-8 py-3 bg-gradient-to-r from-red-500 to-pink-600 text-white font-semibold rounded-2xl hover:from-red-600 hover:to-pink-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
           >
             Refresh Page
           </button>
@@ -417,33 +426,35 @@ Sincerely,
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b-2 border-[#155756]">
-        <div className="max-w-4xl mx-auto px-4 py-6">
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-[#155756] rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">KO</span>
+      <header className="bg-white/90 backdrop-blur-sm shadow-lg border-b border-emerald-100">
+        <div className="max-w-6xl mx-auto px-6 py-8">
+          <div className="flex items-center space-x-6">
+            <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <Leaf className="text-white w-8 h-8" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-[#155756]">Contact Your Wisconsin Representatives</h1>
-              <p className="text-gray-600">Make your voice heard on cannabis legalization</p>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-700 bg-clip-text text-transparent">
+                Contact Your Wisconsin Representatives
+              </h1>
+              <p className="text-gray-600 text-lg mt-1">Make your voice heard on cannabis legalization</p>
             </div>
           </div>
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-8">
+      <main className="max-w-6xl mx-auto px-6 py-12">
         {/* Progress Indicator */}
-        <div className="mb-8" role="navigation" aria-label="Progress">
-          <div className="flex items-center justify-center space-x-4">
+        <div className="mb-12" role="navigation" aria-label="Progress">
+          <div className="flex items-center justify-center space-x-8">
             {[1, 2, 3].map((step) => (
               <div key={step} className="flex items-center">
                 <div 
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                  className={`w-12 h-12 rounded-2xl flex items-center justify-center text-lg font-bold transition-all duration-300 ${
                     currentStep >= step 
-                      ? 'bg-[#155756] text-white' 
-                      : 'bg-gray-300 text-gray-600'
+                      ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg scale-110' 
+                      : 'bg-white text-gray-400 shadow-md'
                   }`}
                   aria-current={currentStep === step ? 'step' : undefined}
                   aria-label={`Step ${step}`}
@@ -451,34 +462,41 @@ Sincerely,
                   {step}
                 </div>
                 {step < 3 && (
-                  <div className={`w-16 h-1 mx-2 ${
-                    currentStep > step ? 'bg-[#155756]' : 'bg-gray-300'
+                  <div className={`w-24 h-2 mx-4 rounded-full transition-all duration-300 ${
+                    currentStep > step ? 'bg-gradient-to-r from-emerald-400 to-teal-500' : 'bg-gray-200'
                   }`} aria-hidden="true" />
                 )}
               </div>
             ))}
           </div>
-          <div className="flex justify-center space-x-20 mt-2">
-            <span className="text-sm text-gray-600">Your Info</span>
-            <span className="text-sm text-gray-600">Representatives</span>
-            <span className="text-sm text-gray-600">Send Letter</span>
+          <div className="flex justify-center space-x-32 mt-4">
+            <span className="text-sm font-medium text-gray-600">Your Info</span>
+            <span className="text-sm font-medium text-gray-600">Representatives</span>
+            <span className="text-sm font-medium text-gray-600">Send Letter</span>
           </div>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg" role="alert">
-            <p className="text-red-700">{error}</p>
+          <div className="mb-8 p-6 bg-red-50 border border-red-200 rounded-2xl shadow-sm" role="alert">
+            <div className="flex items-center space-x-3">
+              <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+              <p className="text-red-700 font-medium">{error}</p>
+            </div>
           </div>
         )}
 
         {/* Step 1: User Information */}
         {currentStep === 1 && (
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            <h2 className="text-xl font-semibold text-[#155756] mb-6">Enter Your Information</h2>
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl p-10 border border-white/50">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">Enter Your Information</h2>
+              <p className="text-gray-600">We'll find your Wisconsin representatives based on your address</p>
+            </div>
+            
+            <div className="max-w-2xl mx-auto space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="firstName" className="block text-sm font-semibold text-gray-700 mb-3">
                     First Name *
                   </label>
                   <input
@@ -488,13 +506,13 @@ Sincerely,
                     value={formData.firstName}
                     onChange={handleInputChange}
                     maxLength={CONFIG.MAX_NAME_LENGTH}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155756] focus:border-transparent"
+                    className="w-full px-4 py-4 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white/50 backdrop-blur-sm text-gray-800 placeholder-gray-500 transition-all duration-200"
                     placeholder="Enter your first name"
                     aria-required="true"
                   />
                 </div>
                 <div>
-                  <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="lastName" className="block text-sm font-semibold text-gray-700 mb-3">
                     Last Name *
                   </label>
                   <input
@@ -504,14 +522,14 @@ Sincerely,
                     value={formData.lastName}
                     onChange={handleInputChange}
                     maxLength={CONFIG.MAX_NAME_LENGTH}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155756] focus:border-transparent"
+                    className="w-full px-4 py-4 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white/50 backdrop-blur-sm text-gray-800 placeholder-gray-500 transition-all duration-200"
                     placeholder="Enter your last name"
                     aria-required="true"
                   />
                 </div>
               </div>
               <div>
-                <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="address" className="block text-sm font-semibold text-gray-700 mb-3">
                   Full Wisconsin Address (including ZIP code) *
                 </label>
                 <input
@@ -521,69 +539,81 @@ Sincerely,
                   value={formData.address}
                   onChange={handleInputChange}
                   maxLength={CONFIG.MAX_ADDRESS_LENGTH}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155756] focus:border-transparent"
+                  className="w-full px-4 py-4 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white/50 backdrop-blur-sm text-gray-800 placeholder-gray-500 transition-all duration-200"
                   placeholder="123 Main St, Madison, WI 53703"
                   aria-required="true"
                   aria-describedby="address-help"
                 />
-                <p id="address-help" className="mt-1 text-sm text-gray-500">
-                  Please include your 5-digit ZIP code
+                <p id="address-help" className="mt-2 text-sm text-gray-500">
+                  Please include your 5-digit ZIP code so we can find your exact representatives
                 </p>
               </div>
             </div>
-            <button
-              onClick={findRepresentatives}
-              disabled={loading}
-              className="mt-6 w-full md:w-auto px-8 py-3 bg-[#155756] text-white font-medium rounded-lg hover:bg-[#0f4544] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-              aria-busy={loading}
-            >
-              {loading ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" aria-hidden="true"></div>
-                  <span>Finding Representatives...</span>
-                </>
-              ) : (
-                <>
-                  <Search className="w-4 h-4" aria-hidden="true" />
-                  <span>Find My Representatives</span>
-                </>
-              )}
-            </button>
+            
+            <div className="text-center mt-8">
+              <button
+                onClick={findRepresentatives}
+                disabled={loading}
+                className="px-10 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold rounded-2xl hover:from-emerald-600 hover:to-teal-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-3 mx-auto transform hover:scale-105 transition-all duration-200 shadow-lg"
+                aria-busy={loading}
+              >
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" aria-hidden="true"></div>
+                    <span>Finding Representatives...</span>
+                  </>
+                ) : (
+                  <>
+                    <Search className="w-5 h-5" aria-hidden="true" />
+                    <span>Find My Representatives</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         )}
 
         {/* Step 2: Representatives Display */}
         {currentStep === 2 && (
-          <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-lg p-8">
-              <h2 className="text-xl font-semibold text-[#155756] mb-6">Your Wisconsin Representatives</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-8">
+            <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl p-10 border border-white/50">
+              <div className="text-center mb-8">
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">Your Wisconsin Representatives</h2>
+                <p className="text-gray-600">These are your elected officials who will receive your advocacy letter</p>
+              </div>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
                 {/* Senator */}
                 {representatives.senator && (
-                  <div className="border border-gray-200 rounded-lg p-6">
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300">
                     <div className="text-center">
-                      <img
-                        src={representatives.senator.Photo}
-                        alt={`${representatives.senator["First Name"]} ${representatives.senator["Last Name"]}`}
-                        className="w-24 h-32 mx-auto rounded-lg object-cover mb-4"
-                        onError={(e) => {
-                          e.target.src = generatePlaceholderPhoto(representatives.senator);
-                        }}
-                      />
-                      <h3 className="font-semibold text-lg text-[#155756]">
+                      <div className="relative mb-6">
+                        <img
+                          src={representatives.senator.Photo}
+                          alt={`${representatives.senator["First Name"]} ${representatives.senator["Last Name"]}`}
+                          className="w-24 h-32 mx-auto rounded-2xl object-cover shadow-lg"
+                          onError={(e) => {
+                            e.target.src = generatePlaceholderPhoto(representatives.senator);
+                          }}
+                        />
+                        <div className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                          SENATOR
+                        </div>
+                      </div>
+                      <h3 className="font-bold text-xl text-gray-800 mb-1">
                         {representatives.senator["First Name"]} {representatives.senator["Last Name"]}
                       </h3>
-                      <p className="text-gray-600 mb-2">State Senator, District {representatives.senator.District}</p>
-                      <p className="text-sm text-gray-500 mb-4">{representatives.senator.Party}</p>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex items-center justify-center space-x-2">
-                          <Mail className="w-4 h-4 text-[#155756]" aria-hidden="true" />
-                          <span className="break-all">{representatives.senator.Email}</span>
+                      <p className="text-gray-600 mb-1 font-medium">State Senator, District {representatives.senator.District}</p>
+                      <p className="text-sm text-gray-500 mb-6">{representatives.senator.Party}</p>
+                      <div className="space-y-3 text-sm">
+                        <div className="flex items-center justify-center space-x-3 bg-white/70 rounded-xl p-3">
+                          <Mail className="w-4 h-4 text-blue-600 flex-shrink-0" aria-hidden="true" />
+                          <span className="break-all text-gray-700 font-medium">{representatives.senator.Email}</span>
                         </div>
                         {representatives.senator.Phone && (
-                          <div className="flex items-center justify-center space-x-2">
-                            <Phone className="w-4 h-4 text-[#155756]" aria-hidden="true" />
-                            <span>{representatives.senator.Phone}</span>
+                          <div className="flex items-center justify-center space-x-3 bg-white/70 rounded-xl p-3">
+                            <Phone className="w-4 h-4 text-blue-600 flex-shrink-0" aria-hidden="true" />
+                            <span className="text-gray-700 font-medium">{representatives.senator.Phone}</span>
                           </div>
                         )}
                       </div>
@@ -593,30 +623,35 @@ Sincerely,
 
                 {/* Representative */}
                 {representatives.representative && (
-                  <div className="border border-gray-200 rounded-lg p-6">
+                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-100 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300">
                     <div className="text-center">
-                      <img
-                        src={representatives.representative.Photo}
-                        alt={`${representatives.representative["First Name"]} ${representatives.representative["Last Name"]}`}
-                        className="w-24 h-32 mx-auto rounded-lg object-cover mb-4"
-                        onError={(e) => {
-                          e.target.src = generatePlaceholderPhoto(representatives.representative);
-                        }}
-                      />
-                      <h3 className="font-semibold text-lg text-[#155756]">
+                      <div className="relative mb-6">
+                        <img
+                          src={representatives.representative.Photo}
+                          alt={`${representatives.representative["First Name"]} ${representatives.representative["Last Name"]}`}
+                          className="w-24 h-32 mx-auto rounded-2xl object-cover shadow-lg"
+                          onError={(e) => {
+                            e.target.src = generatePlaceholderPhoto(representatives.representative);
+                          }}
+                        />
+                        <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                          ASSEMBLY
+                        </div>
+                      </div>
+                      <h3 className="font-bold text-xl text-gray-800 mb-1">
                         {representatives.representative["First Name"]} {representatives.representative["Last Name"]}
                       </h3>
-                      <p className="text-gray-600 mb-2">State Representative, District {representatives.representative.District}</p>
-                      <p className="text-sm text-gray-500 mb-4">{representatives.representative.Party}</p>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex items-center justify-center space-x-2">
-                          <Mail className="w-4 h-4 text-[#155756]" aria-hidden="true" />
-                          <span className="break-all">{representatives.representative.Email}</span>
+                      <p className="text-gray-600 mb-1 font-medium">State Representative, District {representatives.representative.District}</p>
+                      <p className="text-sm text-gray-500 mb-6">{representatives.representative.Party}</p>
+                      <div className="space-y-3 text-sm">
+                        <div className="flex items-center justify-center space-x-3 bg-white/70 rounded-xl p-3">
+                          <Mail className="w-4 h-4 text-green-600 flex-shrink-0" aria-hidden="true" />
+                          <span className="break-all text-gray-700 font-medium">{representatives.representative.Email}</span>
                         </div>
                         {representatives.representative.Phone && (
-                          <div className="flex items-center justify-center space-x-2">
-                            <Phone className="w-4 h-4 text-[#155756]" aria-hidden="true" />
-                            <span>{representatives.representative.Phone}</span>
+                          <div className="flex items-center justify-center space-x-3 bg-white/70 rounded-xl p-3">
+                            <Phone className="w-4 h-4 text-green-600 flex-shrink-0" aria-hidden="true" />
+                            <span className="text-gray-700 font-medium">{representatives.representative.Phone}</span>
                           </div>
                         )}
                       </div>
@@ -625,11 +660,11 @@ Sincerely,
                 )}
               </div>
               
-              {/* User Disclaimer - Added as required */}
-              <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-sm text-yellow-800">
+              {/* User Disclaimer */}
+              <div className="mt-8 p-4 bg-amber-50 border border-amber-200 rounded-2xl">
+                <p className="text-sm text-amber-800 text-center">
                   <strong>Note:</strong> This tool uses ZIP code-based lookup. In rare cases, please verify your representatives at{' '}
-                  <a href="https://legis.wisconsin.gov/Pages/leg-list.aspx" className="underline" target="_blank" rel="noopener noreferrer">
+                  <a href="https://legis.wisconsin.gov/Pages/leg-list.aspx" className="underline font-semibold hover:text-amber-900" target="_blank" rel="noopener noreferrer">
                     legis.wisconsin.gov
                   </a>
                 </p>
@@ -637,39 +672,48 @@ Sincerely,
             </div>
 
             {/* Letter Selection */}
-            <div className="bg-white rounded-lg shadow-lg p-8">
-              <h2 className="text-xl font-semibold text-[#155756] mb-6">Choose Your Message</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl p-10 border border-white/50">
+              <div className="text-center mb-8">
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">Choose Your Message</h2>
+                <p className="text-gray-600">Select the advocacy letter that best represents your position</p>
+              </div>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-5xl mx-auto">
                 {Object.entries(advocacyLetters).map(([key, letter]) => (
-                  <div key={key} className="border border-gray-200 rounded-lg p-4 hover:border-[#155756] transition-colors">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-semibold text-[#155756]">{letter.title}</h3>
+                  <div key={key} className={`bg-gradient-to-br ${letter.gradient} rounded-2xl p-1 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105`}>
+                    <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 h-full">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center space-x-3">
+                          <span className="text-2xl">{letter.icon}</span>
+                          <h3 className="font-bold text-lg text-gray-800">{letter.title}</h3>
+                        </div>
+                        <button
+                          onClick={() => setExpandedLetter(expandedLetter === key ? null : key)}
+                          className="text-gray-500 hover:text-gray-700 transition-colors duration-200"
+                          aria-expanded={expandedLetter === key}
+                          aria-controls={`letter-preview-${key}`}
+                          aria-label={`${expandedLetter === key ? 'Hide' : 'Show'} preview of ${letter.title}`}
+                        >
+                          {expandedLetter === key ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                        </button>
+                      </div>
+                      
+                      {expandedLetter === key && (
+                        <div 
+                          id={`letter-preview-${key}`}
+                          className="mb-6 p-4 bg-gray-50 rounded-xl text-sm text-gray-700 max-h-48 overflow-y-auto border"
+                        >
+                          <pre className="whitespace-pre-wrap font-sans leading-relaxed">{letter.content.slice(0, 400)}...</pre>
+                        </div>
+                      )}
+                      
                       <button
-                        onClick={() => setExpandedLetter(expandedLetter === key ? null : key)}
-                        className="text-[#155756] hover:text-[#0f4544]"
-                        aria-expanded={expandedLetter === key}
-                        aria-controls={`letter-preview-${key}`}
-                        aria-label={`${expandedLetter === key ? 'Hide' : 'Show'} preview of ${letter.title}`}
+                        onClick={() => selectLetter(key)}
+                        className={`w-full px-6 py-3 bg-gradient-to-r ${letter.gradient} text-white font-bold rounded-xl hover:shadow-lg transition-all duration-200 transform hover:scale-105`}
                       >
-                        {expandedLetter === key ? <ChevronUp className="w-4 h-4" aria-hidden="true" /> : <ChevronDown className="w-4 h-4" aria-hidden="true" />}
+                        Use This Letter
                       </button>
                     </div>
-                    
-                    {expandedLetter === key && (
-                      <div 
-                        id={`letter-preview-${key}`}
-                        className="mb-4 p-3 bg-gray-50 rounded text-sm text-gray-700 max-h-40 overflow-y-auto"
-                      >
-                        <pre className="whitespace-pre-wrap font-sans">{letter.content.slice(0, 300)}...</pre>
-                      </div>
-                    )}
-                    
-                    <button
-                      onClick={() => selectLetter(key)}
-                      className="w-full px-4 py-2 bg-[#155756] text-white font-medium rounded-lg hover:bg-[#0f4544] flex items-center justify-center space-x-2"
-                    >
-                      <span>Use This Letter</span>
-                    </button>
                   </div>
                 ))}
               </div>
@@ -679,61 +723,85 @@ Sincerely,
 
         {/* Step 3: Send Email */}
         {currentStep === 3 && selectedLetter && (
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            <h2 className="text-xl font-semibold text-[#155756] mb-6">Ready to Send</h2>
-            <div className="mb-6">
-              <h3 className="font-semibold text-lg mb-3">Selected Letter: {advocacyLetters[selectedLetter].title}</h3>
-              <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                <h4 className="font-medium mb-2">Subject:</h4>
-                <p className="text-gray-700">{advocacyLetters[selectedLetter].subject}</p>
-              </div>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="font-medium mb-2">Recipients:</h4>
-                <div className="space-y-2">
-                  <p className="text-gray-700">
-                    <strong>Senator:</strong> {representatives.senator["First Name"]} {representatives.senator["Last Name"]} ({representatives.senator.Email})
-                  </p>
-                  <p className="text-gray-700">
-                    <strong>Representative:</strong> {representatives.representative["First Name"]} {representatives.representative["Last Name"]} ({representatives.representative.Email})
-                  </p>
+          <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl p-10 border border-white/50">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">Ready to Send</h2>
+              <p className="text-gray-600">Your advocacy letter is ready to be sent to your representatives</p>
+            </div>
+            
+            <div className="max-w-3xl mx-auto">
+              <div className="mb-8">
+                <h3 className="font-bold text-xl mb-6 text-center">
+                  Selected Letter: 
+                  <span className={`ml-2 bg-gradient-to-r ${advocacyLetters[selectedLetter].gradient} bg-clip-text text-transparent`}>
+                    {advocacyLetters[selectedLetter].title}
+                  </span>
+                </h3>
+                
+                <div className="space-y-6">
+                  <div className="bg-gray-50 rounded-2xl p-6 border">
+                    <h4 className="font-semibold mb-3 text-gray-800">Subject:</h4>
+                    <p className="text-gray-700 leading-relaxed">{advocacyLetters[selectedLetter].subject}</p>
+                  </div>
+                  
+                  <div className="bg-gray-50 rounded-2xl p-6 border">
+                    <h4 className="font-semibold mb-3 text-gray-800">Recipients:</h4>
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-3 bg-white rounded-xl p-3">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        <p className="text-gray-700">
+                          <strong>Senator:</strong> {representatives.senator["First Name"]} {representatives.senator["Last Name"]} ({representatives.senator.Email})
+                        </p>
+                      </div>
+                      <div className="flex items-center space-x-3 bg-white rounded-xl p-3">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <p className="text-gray-700">
+                          <strong>Representative:</strong> {representatives.representative["First Name"]} {representatives.representative["Last Name"]} ({representatives.representative.Email})
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-              <button
-                onClick={generateEmail}
-                className="flex-1 px-6 py-3 bg-[#155756] text-white font-medium rounded-lg hover:bg-[#0f4544] flex items-center justify-center space-x-2"
-              >
-                <Mail className="w-4 h-4" aria-hidden="true" />
-                <span>Email My Representatives</span>
-              </button>
-              <button
-                onClick={resetForm}
-                className="flex-1 px-6 py-3 border border-[#155756] text-[#155756] font-medium rounded-lg hover:bg-[#155756] hover:text-white flex items-center justify-center space-x-2"
-              >
-                <User className="w-4 h-4" aria-hidden="true" />
-                <span>Send Another Letter</span>
-              </button>
-            </div>
-            
-            <div className="mt-6 p-4 bg-[#ADEEEE] bg-opacity-20 rounded-lg">
-              <p className="text-sm text-gray-700">
-                <strong>Next Steps:</strong> Your default email client will open with the letter pre-filled. 
-                Review the content, make any personal additions if desired, and send to make your voice heard!
-              </p>
+              
+              <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6">
+                <button
+                  onClick={generateEmail}
+                  className="flex-1 px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold rounded-2xl hover:from-emerald-600 hover:to-teal-700 flex items-center justify-center space-x-3 transform hover:scale-105 transition-all duration-200 shadow-lg"
+                >
+                  <Mail className="w-5 h-5" aria-hidden="true" />
+                  <span>Email My Representatives</span>
+                </button>
+                <button
+                  onClick={resetForm}
+                  className="flex-1 px-8 py-4 border-2 border-emerald-500 text-emerald-600 font-bold rounded-2xl hover:bg-emerald-50 flex items-center justify-center space-x-3 transition-all duration-200"
+                >
+                  <User className="w-5 h-5" aria-hidden="true" />
+                  <span>Send Another Letter</span>
+                </button>
+              </div>
+              
+              <div className="mt-8 p-6 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border border-emerald-100">
+                <p className="text-sm text-gray-700 text-center leading-relaxed">
+                  <strong>Next Steps:</strong> Your default email client will open with the letter pre-filled. 
+                  Review the content, make any personal additions if desired, and send to make your voice heard!
+                </p>
+              </div>
             </div>
           </div>
         )}
       </main>
 
       {/* Footer */}
-      <footer className="bg-[#155756] text-white py-8 mt-12">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <p className="text-sm opacity-90">
-            Powered by Kind Oasis | Supporting Wisconsin's Cannabis Advocacy
-          </p>
-          <p className="text-xs opacity-75 mt-2">
+      <footer className="bg-gradient-to-r from-emerald-600 to-teal-700 text-white py-12 mt-16">
+        <div className="max-w-6xl mx-auto px-6 text-center">
+          <div className="flex items-center justify-center space-x-3 mb-4">
+            <Leaf className="w-6 h-6" />
+            <p className="text-lg font-semibold">
+              Powered by Kind Oasis | Supporting Wisconsin's Cannabis Advocacy
+            </p>
+          </div>
+          <p className="text-emerald-100 text-sm">
             This tool is provided for educational and advocacy purposes. 
             Please ensure your communications comply with all applicable laws and regulations.
           </p>
